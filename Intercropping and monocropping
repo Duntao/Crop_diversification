@@ -1,0 +1,29 @@
+
+#alpha diversity
+alpha_diversity <- function(x,tree = NULL) 
+  {
+  observed_species <- vegan::estimateR(x)[1,]
+  Chao1<-vegan::estimateR(x)[2,]
+  ACE<-vegan::estimateR(x)[4,]
+  Shannon<-vegan::diversity(x,index='shannon')
+  Shannon2<-vegan::diversity(x,index='shannon',base=2)
+  Simpson<-vegan::diversity(x,index='simpson')    #注意，这里是Gini-Simpson 指数
+  goods_Coverage<-1-rowSums(x==1)/rowSums(x)
+  richness<-vegan::specnumber(x)
+  eveness<-Shannon/log(richness)
+  eveness2<-Shannon2/log(richness)
+  #保留四位小数
+  #Shannon <- sprintf("%0.4f", Shannon)
+  #Simpson <- sprintf("%0.4f", Simpson)
+  #goods_Coverage <- sprintf("%0.4f", goods_Coverage)
+  result_4_index <- data.frame(observed_species,ACE,Chao1,Shannon,Shannon2,Simpson,goods_Coverage,richness,eveness,eveness2)
+  
+    if (!is.null(tree)) {
+    PD_whole_tree <- pd(x, tree, include.root = FALSE)[1]
+    names(PD_whole_tree) <- 'PD_whole_tree'
+    result <- cbind(result_4_index, PD_whole_tree)
+    result <- data.frame(observed_species,ACE,Chao1,Shannon,Shannon2,Simpson,
+                         goods_Coverage,richness,eveness,eveness2,PD_whole_tree)
+  }
+  return(result)
+}
